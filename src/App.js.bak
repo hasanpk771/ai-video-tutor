@@ -1,0 +1,111 @@
+import React, { useState, useEffect, useCallback } from "react";
+import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
+
+function App() {
+  console.log("App loaded"); // Debug: check console
+
+  const { transcript, listening, resetTranscript } = useSpeechRecognition();
+  const [message, setMessage] = useState("");
+  const [tutorialURL, setTutorialURL] = useState("");
+
+  // Browser support check
+  if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
+    return (
+      <h2 className="text-center mt-10 text-red-500">
+        Speech Recognition not supported. Please use Chrome.
+      </h2>
+    );
+  }
+
+  // Keyword → Video mapping
+  const guides = {
+    react: "https://www.youtube.com/watch?v=Ke90Tje7VS0",
+    html: "https://www.youtube.com/watch?v=pQN-pnXPaVg",
+    css: "https://www.youtube.com/watch?v=yfoY53QXEnI",
+    javascript: "https://www.youtube.com/watch?v=W6NZfCO5SIk"
+  };
+
+  // Dynamic Tutor Response
+  const dynamicResponses = {
+    hello: "Hi there! Ask me anything about web development.",
+    job: "Looking for a job? Prepare your resume and portfolio first!",
+    react: "React is a JavaScript library for building user interfaces.",
+    html: "HTML is the structure of your web page.",
+    css: "CSS styles your web page beautifully.",
+    javascript: "JavaScript makes your web page interactive."
+  };
+
+  const handleResponse = useCallback((text) => {
+    const lowerText = text.toLowerCase();
+    for (let key in guides) {
+      if (lowerText.includes(key)) {
+        setTutorialURL(guides[key]);
+        setMessage(`Showing tutorial for "${key}"`);
+        return;
+      }
+    }
+    for (let key in dynamicResponses) {
+      if (lowerText.includes(key)) {
+        setMessage(dynamicResponses[key]);
+        setTutorialURL("");
+        return;
+      }
+    }
+    setMessage(`Sorry, I don't have an answer for: "${text}"`);
+    setTutorialURL("");
+  }, []);
+
+  useEffect(() => {
+    if (transcript) {
+      handleResponse(transcript);
+      resetTranscript();
+    }
+  }, [transcript, handleResponse, resetTranscript]);
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-gray-50">
+      <h1 className="text-4xl font-bold mb-4 text-indigo-600">🎤 AI Voice Tutor</h1>
+      <p className="mb-6 text-center">
+        Say anything and the tutor will respond. Example: "React", "HTML", "CSS", "JavaScript", "job", "hello"
+      </p>
+
+      {/* Debug test Tailwind */}
+      <div className="text-red-500 text-2xl mb-4">Hello Tailwind!</div>
+
+      <div className="space-x-4 mb-4">
+        <button
+          onClick={SpeechRecognition.startListening}
+          className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600"
+        >
+          Start Listening
+        </button>
+        <button
+          onClick={SpeechRecognition.stopListening}
+          className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600"
+        >
+          Stop
+        </button>
+      </div>
+
+      <p className="mb-2">Listening: {listening ? "Yes ✅" : "No ❌"}</p>
+      <p className="mb-4 text-gray-700">Transcript: "{transcript}"</p>
+
+      <div className="bg-white p-6 rounded shadow-md w-full max-w-xl text-center">
+        <h2 className="text-2xl font-semibold mb-4">{message}</h2>
+        {tutorialURL && (
+          <iframe
+            width="100%"
+            height="315"
+            src={tutorialURL.replace("watch?v=", "embed/")}
+            title="Tutorial Video"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default App;
