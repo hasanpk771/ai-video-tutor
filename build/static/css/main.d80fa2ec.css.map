@@ -1,1 +1,0 @@
-{"version":3,"file":"static/css/main.d80fa2ec.css","mappings":"AAAA,KAGE,wBAAyB,CAFzB,QAAS,CACT,SAEF,CAEA,kBACE,iBACF","sources":["index.css"],"sourcesContent":["body {\r\n  margin: 0;\r\n  padding: 0;\r\n  background-color: #f8f9fa;\r\n}\r\n\r\n.app-container h1 {\r\n  text-align: center;\r\n}\r\n"],"names":[],"sourceRoot":""}
